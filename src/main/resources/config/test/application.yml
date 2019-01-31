@@ -1,0 +1,78 @@
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/qipai_robot
+#      database: qipai_members
+#      host: 172.16.21.50
+#      port: 27017
+#      username: root
+#      password: '''~kkO837/FZ.'
+#      authentication-database: admin
+#      repositories:
+#        enabled: true
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+          zk-nodes: localhost:2181
+          minPartitionCount: 1
+          autoCreateTopics: true
+          autoAddPartitions: false
+
+
+      bindings:
+        wenzhouShuangkouGameRoom:
+          destination: wenzhouShuangkouGameRoom
+          group: qipai-fake
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+        ruianGameRoom:
+          destination: ruianGameRoom
+          group: qipai-fake
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+        wenzhouGameRoom:
+          destination: wenzhouGameRoom
+          group: qipai-fake
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+        dianpaoGameRoom:
+          destination: dianpaoGameRoom
+          group: qipai-fake
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+        fangpaoGameRoom:
+          destination: fangpaoGameRoom
+          group: qipai-fake
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+  application:
+    name: qipai-fake
+server:
+  port: 90
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+  #instance:
+    #prefer-ip-address: true
+    #instance-id: http://172.16.21.51:82
