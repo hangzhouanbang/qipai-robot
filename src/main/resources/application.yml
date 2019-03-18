@@ -1,15 +1,7 @@
 spring:
   data:
     mongodb:
-#      uri: mongodb://localhost:27017/qipai_xiuxianchang
-      database: qipai_robot
-      host: 172.16.21.50
-      port: 27017
-      username: root
-      password: '''~kkO837/FZ.'
-      authentication-database: admin
-      repositories:
-        enabled: true
+      uri: mongodb://localhost:27017/qipai_xiuxianchang
 
 
   cloud:
