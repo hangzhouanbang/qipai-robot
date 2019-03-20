@@ -14,7 +14,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import com.anbang.qipai.robot.dao.dataObject.RobotMemberDbo;
+import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
 import com.anbang.qipai.robot.robot.game.Game;
 import com.anbang.qipai.robot.robot.websocket.RobotWebSocketClient;
 import com.google.gson.Gson;

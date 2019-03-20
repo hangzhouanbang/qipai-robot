@@ -2,9 +2,9 @@ package com.anbang.qipai.robot.msg.service;
 
 import com.alibaba.fastjson.JSON;
 import com.anbang.qipai.robot.config.UrlConfig;
-import com.anbang.qipai.robot.dao.dataObject.RobotMemberDbo;
-import com.anbang.qipai.robot.exceptions.AnBangException;
-import com.anbang.qipai.robot.model.Robots;
+import com.anbang.qipai.robot.plan.bean.AnBangException;
+import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
+import com.anbang.qipai.robot.plan.bean.Robots;
 import com.anbang.qipai.robot.thread.ThreadPool;
 import com.anbang.qipai.robot.thread.ThreadPoolFactory;
 import com.anbang.qipai.robot.thread.task.JoinGameTask;

@@ -1,6 +1,6 @@
 package com.anbang.qipai.robot.observe;
 
-import com.anbang.qipai.robot.model.TuoGuanInfo;
+import com.anbang.qipai.robot.plan.bean.TuoGuanInfo;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.Weighers;
 import org.slf4j.Logger;

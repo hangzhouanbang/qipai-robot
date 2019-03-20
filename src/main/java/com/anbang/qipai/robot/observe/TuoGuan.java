@@ -1,9 +1,9 @@
 package com.anbang.qipai.robot.observe;
 
-import com.anbang.qipai.robot.model.TuoGuanInfo;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.anbang.qipai.robot.plan.bean.TuoGuanInfo;
 
 /**
  * @Author: 吴硕涵

@@ -1,8 +1,8 @@
 package com.anbang.qipai.robot.init;
 
-import com.anbang.qipai.robot.dao.dataObject.RobotMemberDbo;
-import com.anbang.qipai.robot.dao.mongodb.RobotMemberDboDao;
-import com.anbang.qipai.robot.model.Robots;
+import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
+import com.anbang.qipai.robot.plan.bean.Robots;
+import com.anbang.qipai.robot.plan.dao.RobotMemberDboDao;
 import com.anbang.qipai.robot.utils.LoggerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;

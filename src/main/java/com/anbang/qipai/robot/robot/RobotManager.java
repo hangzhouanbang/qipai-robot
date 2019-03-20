@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.http.client.ClientProtocolException;
 
-import com.anbang.qipai.robot.dao.dataObject.RobotMemberDbo;
+import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
 import com.anbang.qipai.robot.robot.dianpaomajiang.DianpaoMajiangRobot;
 import com.anbang.qipai.robot.robot.fangpaomajiang.FangpaoMajiangRobot;
 import com.anbang.qipai.robot.robot.game.Game;

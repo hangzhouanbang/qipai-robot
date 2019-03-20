@@ -4,6 +4,10 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -34,6 +38,14 @@ public class RobotWebSocketClient extends WebSocketClient {
 			String key = it.next();
 			System.out.println(key + ":" + handshakedata.getFieldValue(key));
 		}
+		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				sendHeartBeat();
+			}
+
+		}, 100, 7000, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -73,5 +85,15 @@ public class RobotWebSocketClient extends WebSocketClient {
 
 	public void doClose() {
 		this.close();
+	}
+
+	public void sendHeartBeat() {
+		CommonMO mo = new CommonMO();
+		mo.setMsg("heartbeat");
+		Map data = new HashMap<>();
+		mo.setData(data);
+		data.put("token", robot.getToken());
+		String payLoad = gson.toJson(mo);
+		send(payLoad);
 	}
 }

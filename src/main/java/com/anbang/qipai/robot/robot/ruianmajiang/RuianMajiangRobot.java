@@ -10,10 +10,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.util.EntityUtils;
 
-import com.anbang.qipai.robot.dao.dataObject.RobotMemberDbo;
+import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
 import com.anbang.qipai.robot.robot.Robot;
 import com.anbang.qipai.robot.robot.game.Game;
-import com.anbang.qipai.robot.robot.ruianmajiang.action.MajiangPlayerAction;
+import com.anbang.qipai.robot.robot.game.vote.GameFinishVoteMO;
+import com.anbang.qipai.robot.robot.majiang.action.MajiangPlayerAction;
 import com.anbang.qipai.robot.robot.websocket.CommonMO;
 
 public class RuianMajiangRobot extends Robot {
@@ -79,9 +80,14 @@ public class RuianMajiangRobot extends Robot {
 				|| gameState.equals("finishedbyvote"))) {
 			client.doClose();
 		} else if (gameState != null && gameState.equals("waitingStart")) {
-			doReady();
+			if (state != null && state.equals("joined")) {
+				doReady();
+			}
 		} else if (gameState != null && gameState.equals("waitingNextPan")) {
-			doReadyNextPan();
+			if (state != null && (state.equals("panFinished") || state.equals("PlayerPanFinishedAndVoting")
+					|| state.equals("PlayerPanFinishedAndVoted"))) {
+				doReadyNextPan();
+			}
 		}
 	}
 

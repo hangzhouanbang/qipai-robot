@@ -1,7 +1,7 @@
 package com.anbang.qipai.robot.observe;
 
-import com.anbang.qipai.robot.exceptions.AnBangException;
-import com.anbang.qipai.robot.model.TuoGuanInfo;
+import com.anbang.qipai.robot.plan.bean.AnBangException;
+import com.anbang.qipai.robot.plan.bean.TuoGuanInfo;
 import com.anbang.qipai.robot.websocket.MajiangTuoGuanClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
