@@ -1,8 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/qipai_xiuxianchang
-
+      uri: mongodb://localhost:27017/qipai_robot
 
   cloud:
     stream:
@@ -15,7 +14,20 @@ spring:
           autoAddPartitions: false
                   
       bindings:
-
+        members:
+          destination: members
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        authorization:
+          destination: authorization
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
         wenzhouShuangkouGameRoom:
           destination: wenzhouShuangkouGameRoom
           group: qipai_robot

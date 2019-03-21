@@ -5,14 +5,13 @@ import org.springframework.messaging.SubscribableChannel;
 
 /**
  * @Author: 吴硕涵
- * @Date: 2019/1/31 12:27 PM
+ * @Date: 2019/1/31 11:40 AM
  * @Version 1.0
  */
-public interface WenzhouShuangkouGameRoomSink {
+public interface RuianGameRoomSink {
 
-	String WENZHOUSHUANGKOUGAMEROOM = "wenzhouShuangkouGameRoom";
+	String RUIANGAMEROOM = "ruianGameRoom";
 
 	@Input
-	SubscribableChannel wenzhouShuangkouGameRoom();
-
+	SubscribableChannel ruianGameRoom();
 }

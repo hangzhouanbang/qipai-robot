@@ -8,11 +8,11 @@ import org.springframework.messaging.SubscribableChannel;
  * @Date: 2019/1/31 12:27 PM
  * @Version 1.0
  */
-public interface WenzhouShuangkouGameRoomSink {
+public interface WenzhouGameRoomSink {
 
-	String WENZHOUSHUANGKOUGAMEROOM = "wenzhouShuangkouGameRoom";
+	String WENZHOUGAMEROOM = "wenzhouGameRoom";
 
 	@Input
-	SubscribableChannel wenzhouShuangkouGameRoom();
+	SubscribableChannel wenzhouGameRoom();
 
 }
