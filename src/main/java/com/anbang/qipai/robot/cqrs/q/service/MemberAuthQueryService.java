@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.anbang.qipai.robot.cqrs.q.dao.AuthorizationDboDao;
-import com.anbang.qipai.robot.cqrs.q.dao.RobotMemberDboDao;
+import com.anbang.qipai.robot.cqrs.q.dao.RobotDboDao;
 import com.anbang.qipai.robot.cqrs.q.dbo.AuthorizationDbo;
 import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
 
@@ -17,7 +17,7 @@ public class MemberAuthQueryService {
 	private AuthorizationDboDao authorizationDboDao;
 
 	@Autowired
-	private RobotMemberDboDao robotMemberDboDao;
+	private RobotDboDao robotMemberDboDao;
 
 	public AuthorizationDbo findThirdAuthorizationDbo(String publisher, String uuid) {
 		return authorizationDboDao.find(true, publisher, uuid);

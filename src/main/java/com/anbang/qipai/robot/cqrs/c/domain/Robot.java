@@ -11,6 +11,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
@@ -56,6 +57,21 @@ public abstract class Robot {
 		this.unionid = unionid;
 		this.openid = openid;
 		getGameToken();
+		System.out.println("playerId:" + playerId + ",nickname" + nickname + "加入游戏");
+	}
+
+	public Robot(Game game, String gameId, String playerId, String nickname, String headimgurl, String gender,
+			String token) {
+		this.game = game;
+		this.gameId = gameId;
+		httpClient = HttpClients.createDefault();
+		this.playerId = playerId;
+		this.nickname = nickname;
+		this.headimgurl = headimgurl;
+		this.gender = gender;
+		this.token = token;
+		// HTTPURL和WSURL未知，需要从游戏服务器获取
+		System.out.println("playerId:" + playerId + ",nickname" + nickname + "进行托管");
 	}
 
 	private void getGameToken() throws ClientProtocolException, IOException, RobotLoginException, JoinGameException {
@@ -72,7 +88,7 @@ public abstract class Robot {
 			gender = "0";
 		}
 		querys.put("sex", gender);
-		HttpResponse response = doPost(RobotConfig.ROBOT_LOGIN_URL, querys);
+		HttpResponse response = doPost(RobotConfig.ROBOT_LOGIN_URL, null, querys);
 		CommonMO mo = gson.fromJson(EntityUtils.toString(response.getEntity()), CommonMO.class);
 		if (!mo.isSuccess()) {
 			throw new RobotLoginException();
@@ -94,7 +110,7 @@ public abstract class Robot {
 		querys.put("gameId", gameId);
 		querys.put("game", game.name());
 
-		HttpResponse response = doPost(RobotConfig.ROBOT_JOIN_XIUXIANCHANG_URL, querys);
+		HttpResponse response = doPost(RobotConfig.ROBOT_JOIN_XIUXIANCHANG_URL, null, querys);
 		CommonMO mo = gson.fromJson(EntityUtils.toString(response.getEntity()), CommonMO.class);
 		if (!mo.isSuccess()) {
 			throw new JoinGameException();
@@ -105,8 +121,28 @@ public abstract class Robot {
 		httpUrl = (String) data.get("httpUrl");
 	}
 
-	protected HttpResponse doPost(String url, Map<String, String> querys) throws ClientProtocolException, IOException {
+	protected HttpResponse doPost(String url, Map<String, String> headers, Map<String, String> querys)
+			throws ClientProtocolException, IOException {
 		HttpPost request = new HttpPost(buildUrl(url, querys));
+		if (headers != null && !headers.isEmpty()) {
+			for (Map.Entry<String, String> e : headers.entrySet()) {
+				request.addHeader(e.getKey(), e.getValue());
+			}
+		}
+		return httpClient.execute(request);
+	}
+
+	protected HttpResponse doPost(String url, Map<String, String> headers, Map<String, String> querys, String body)
+			throws ClientProtocolException, IOException {
+		HttpPost request = new HttpPost(buildUrl(url, querys));
+		if (headers != null && !headers.isEmpty()) {
+			for (Map.Entry<String, String> e : headers.entrySet()) {
+				request.addHeader(e.getKey(), e.getValue());
+			}
+		}
+		if (StringUtils.isNotBlank(body)) {
+			request.setEntity(new StringEntity(body, "utf-8"));
+		}
 		return httpClient.execute(request);
 	}
 

@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.util.EntityUtils;
 
+import com.anbang.qipai.robot.config.RobotConfig;
 import com.anbang.qipai.robot.cqrs.c.domain.CommonMO;
 import com.anbang.qipai.robot.cqrs.c.domain.JoinGameException;
 import com.anbang.qipai.robot.cqrs.c.domain.Robot;
@@ -50,6 +51,13 @@ public class WenzhouMajiangRobot extends Robot {
 		super(game, gameId, robotDbo, unionid, openid);
 	}
 
+	public WenzhouMajiangRobot(Game game, String gameId, String playerId, String nickname, String headimgurl,
+			String gender, String token) {
+		super(game, gameId, playerId, nickname, headimgurl, gender, token);
+		this.httpUrl = RobotConfig.WENZHOU_HTTP_URL;
+		this.wsUrl = RobotConfig.WENZHOU_WS_URL;
+	}
+
 	@Override
 	public void doScope(String scope) throws Exception {
 		if (scope.equals("gameInfo")) {
@@ -70,7 +78,7 @@ public class WenzhouMajiangRobot extends Robot {
 	private void queryGameInfo() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + gameInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + gameInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -108,7 +116,7 @@ public class WenzhouMajiangRobot extends Robot {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + panForMeUrl, querys);
+		HttpResponse response = doPost(httpUrl + panForMeUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -128,7 +136,7 @@ public class WenzhouMajiangRobot extends Robot {
 	private void queryGameFinishVote() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + voteInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + voteInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -146,7 +154,7 @@ public class WenzhouMajiangRobot extends Robot {
 	private void queryMaidiInfo() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + maidiInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + maidiInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -158,7 +166,7 @@ public class WenzhouMajiangRobot extends Robot {
 	private void doReady() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		HttpResponse response = doPost(httpUrl + readyUrl, querys);
+		HttpResponse response = doPost(httpUrl + readyUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -178,7 +186,7 @@ public class WenzhouMajiangRobot extends Robot {
 	private void doReadyNextPan() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		HttpResponse response = doPost(httpUrl + readyToNextPanUrl, querys);
+		HttpResponse response = doPost(httpUrl + readyToNextPanUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -199,7 +207,7 @@ public class WenzhouMajiangRobot extends Robot {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
 		querys.put("yes", "true");
-		HttpResponse response = doPost(httpUrl + voteToFinishUrl, querys);
+		HttpResponse response = doPost(httpUrl + voteToFinishUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -222,7 +230,7 @@ public class WenzhouMajiangRobot extends Robot {
 			Map<String, String> querys = new HashMap<>();
 			querys.put("token", token);
 			querys.put("yes", "false");
-			HttpResponse response = doPost(httpUrl + maidiUrl, querys);
+			HttpResponse response = doPost(httpUrl + maidiUrl, null, querys);
 			String entity = EntityUtils.toString(response.getEntity());
 			CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 			if (!rmo.isSuccess()) {
@@ -245,17 +253,17 @@ public class WenzhouMajiangRobot extends Robot {
 		int actionNo = ((Double) data.get("no")).intValue();
 		Map panAfterAction = (Map) data.get("panAfterAction");
 		List<MajiangPlayerAction> actionCandidates = new ArrayList<>();
-		((List) panAfterAction.get("playerList")).forEach((player) -> {
-			Map majiangPlayer = (Map) player;
+		List<Map> playerList = (List) panAfterAction.get("playerList");
+		for (Map majiangPlayer : playerList) {
 			if (majiangPlayer.get("id").equals(getPlayerId())) {
 				if (majiangPlayer.get("actionCandidates") != null) {
-					((List) majiangPlayer.get("actionCandidates")).forEach((action) -> {
-						Map playerAction = (Map) action;
+					List<Map> actionList = (List) majiangPlayer.get("actionCandidates");
+					for (Map playerAction : actionList) {
 						actionCandidates.add(new MajiangPlayerAction(playerAction));
-					});
+					}
 				}
 			}
-		});
+		}
 		if (actionCandidates.isEmpty()) {
 			return;
 		}
@@ -263,7 +271,7 @@ public class WenzhouMajiangRobot extends Robot {
 		querys.put("token", token);
 		querys.put("id", String.valueOf(actionCandidates.get(0).getId()));
 		querys.put("actionNo", new Integer(actionNo + 1).toString());
-		HttpResponse response = doPost(httpUrl + actionUrl, querys);
+		HttpResponse response = doPost(httpUrl + actionUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {

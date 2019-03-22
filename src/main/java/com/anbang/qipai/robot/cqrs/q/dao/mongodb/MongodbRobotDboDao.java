@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.anbang.qipai.robot.cqrs.q.dao.RobotMemberDboDao;
+import com.anbang.qipai.robot.cqrs.q.dao.RobotDboDao;
 import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
 
 /**
@@ -19,7 +19,7 @@ import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
  */
 
 @Component
-public class MongodbRobotMemberDboDao implements RobotMemberDboDao {
+public class MongodbRobotDboDao implements RobotDboDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;

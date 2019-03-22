@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.util.EntityUtils;
 
+import com.anbang.qipai.robot.config.RobotConfig;
 import com.anbang.qipai.robot.cqrs.c.domain.CommonMO;
 import com.anbang.qipai.robot.cqrs.c.domain.JoinGameException;
 import com.anbang.qipai.robot.cqrs.c.domain.Robot;
@@ -17,7 +18,6 @@ import com.anbang.qipai.robot.cqrs.c.domain.RobotLoginException;
 import com.anbang.qipai.robot.cqrs.c.domain.game.Game;
 import com.anbang.qipai.robot.cqrs.c.domain.game.GameFinishVoteMO;
 import com.anbang.qipai.robot.cqrs.c.domain.puke.DaPaiDianShuSolution;
-import com.anbang.qipai.robot.cqrs.c.domain.puke.PukePaiMian;
 import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
 
 public class WenzhouShuangkouRobot extends Robot {
@@ -52,17 +52,20 @@ public class WenzhouShuangkouRobot extends Robot {
 
 	private Map<String, String> positionPositionMap = new HashMap<>();
 
-	private Map<Integer, PukePaiMian> allShouPai = new HashMap<>();
-
-	private int[] shoupaiDianShuAmountArray = new int[15];
-
-	private Map<String, String[]> yaPaiSolutionCandidates = new HashMap<>();
-
-	private Map<String, String[]> yaPaiSolutionsForTips = new HashMap<>();
-
 	public WenzhouShuangkouRobot(Game game, String gameId, RobotDbo robotDbo, String unionid, String openid)
 			throws ClientProtocolException, IOException, RobotLoginException, JoinGameException {
 		super(game, gameId, robotDbo, unionid, openid);
+		positionPositionMap.put("dong", "xi");
+		positionPositionMap.put("nan", "bei");
+		positionPositionMap.put("xi", "dong");
+		positionPositionMap.put("bei", "nan");
+	}
+
+	public WenzhouShuangkouRobot(Game game, String gameId, String playerId, String nickname, String headimgurl,
+			String gender, String token) {
+		super(game, gameId, playerId, nickname, headimgurl, gender, token);
+		this.httpUrl = RobotConfig.WZSK_HTTP_URL;
+		this.wsUrl = RobotConfig.WZSK_WS_URL;
 		positionPositionMap.put("dong", "xi");
 		positionPositionMap.put("nan", "bei");
 		positionPositionMap.put("xi", "dong");
@@ -89,7 +92,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void queryGameInfo() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + gameInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + gameInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -126,7 +129,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void queryChaodiInfo() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + chaodiInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + chaodiInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -139,7 +142,7 @@ public class WenzhouShuangkouRobot extends Robot {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + panForMeUrl, querys);
+		HttpResponse response = doPost(httpUrl + panForMeUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -159,7 +162,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void queryGameFinishVote() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("gameId", gameId);
-		HttpResponse response = doPost(httpUrl + voteInfoUrl, querys);
+		HttpResponse response = doPost(httpUrl + voteInfoUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO mo = gson.fromJson(entity, CommonMO.class);
 		if (!mo.isSuccess()) {
@@ -177,7 +180,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void doReady() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		HttpResponse response = doPost(httpUrl + readyUrl, querys);
+		HttpResponse response = doPost(httpUrl + readyUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -197,7 +200,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void doReadyNextPan() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		HttpResponse response = doPost(httpUrl + readyToNextPanUrl, querys);
+		HttpResponse response = doPost(httpUrl + readyToNextPanUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -218,7 +221,7 @@ public class WenzhouShuangkouRobot extends Robot {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
 		querys.put("yes", "true");
-		HttpResponse response = doPost(httpUrl + voteToFinishUrl, querys);
+		HttpResponse response = doPost(httpUrl + voteToFinishUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -241,7 +244,7 @@ public class WenzhouShuangkouRobot extends Robot {
 			Map<String, String> querys = new HashMap<>();
 			querys.put("token", token);
 			querys.put("yes", "true");
-			HttpResponse response = doPost(httpUrl + chaodiUrl, querys);
+			HttpResponse response = doPost(httpUrl + chaodiUrl, null, querys);
 			String entity = EntityUtils.toString(response.getEntity());
 			CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 			if (!rmo.isSuccess()) {
@@ -264,46 +267,60 @@ public class WenzhouShuangkouRobot extends Robot {
 		Map panActionFrame = (Map) data.get("panActionFrame");
 		Map panAfterAction = (Map) panActionFrame.get("panAfterAction");
 		String actionPosition = (String) panAfterAction.get("actionPosition");
-		String latestDapaiPlayerId = (String) panAfterAction.get("latestDapaiPlayerId");
-		((List) panAfterAction.get("shuangkouPlayerList")).forEach((player) -> {
-			Map shuangkouPlayer = (Map) player;
+		if (!playerIdPositionMap.isEmpty() && !actionPosition.equals(playerIdPositionMap.get(getPlayerId()))) {// 没轮到自己出牌
+			return;
+		}
+		String latestDapaiPlayerId = null;
+		if (panAfterAction.get("latestDapaiPlayerId") != null) {
+			latestDapaiPlayerId = (String) panAfterAction.get("latestDapaiPlayerId");
+		}
+		Map<Integer, String> allShouPai = new HashMap<>();
+
+		int[] shoupaiDianShuAmountArray = new int[15];
+
+		Map<String, List<String>> yaPaiSolutionCandidates = new HashMap<>();
+
+		Map<String, List<String>> yaPaiSolutionsForTips = new HashMap<>();
+
+		List<Map> shuangkouPlayerList = (List) panAfterAction.get("shuangkouPlayerList");
+		for (Map shuangkouPlayer : shuangkouPlayerList) {
 			String playerId = (String) shuangkouPlayer.get("id");
 			String playerPosition = (String) shuangkouPlayer.get("position");
 			playerIdPositionMap.put(playerId, playerPosition);
 			if (playerId.equals(getPlayerId())) {
-				List<String> dianshuList = (List) shuangkouPlayer.get("shoupaiDianShuAmountArray");
+				List<Double> dianshuList = (List) shuangkouPlayer.get("shoupaiDianShuAmountArray");
 				for (int i = 0; i < dianshuList.size(); i++) {
-					shoupaiDianShuAmountArray[i] = Double.valueOf(dianshuList.get(i)).intValue();
+					shoupaiDianShuAmountArray[i] = dianshuList.get(i).intValue();
 				}
 				Map allShoupai = (Map) shuangkouPlayer.get("allShoupai");
-				((List) allShoupai.get("allShoupai")).forEach((pukePai) -> {
-					Map pai = (Map) pukePai;
-					int paiId = ((Double) shuangkouPlayer.get("id")).intValue();
-					PukePaiMian pukePaiMian = new PukePaiMian();
-					Map paiMian = (Map) shuangkouPlayer.get("paiMian");
-					pukePaiMian.setHuaSe((String) paiMian.get("huaSe"));
-					pukePaiMian.setDianShu((String) paiMian.get("dianShu"));
-					allShouPai.put(paiId, pukePaiMian);
-				});
-				((List) shuangkouPlayer.get("yaPaiSolutionCandidates")).forEach((solution) -> {
-					Map daPaiDianShuSolution = (Map) solution;
-					String dianshuZuheIdx = (String) daPaiDianShuSolution.get("dianshuZuheIdx");
-					yaPaiSolutionCandidates.put(dianshuZuheIdx,
-							(String[]) daPaiDianShuSolution.get("dachuDianShuArray"));
-				});
-				((List) shuangkouPlayer.get("yaPaiSolutionsForTips")).forEach((solution) -> {
-					Map daPaiDianShuSolution = (Map) solution;
-					String dianshuZuheIdx = (String) daPaiDianShuSolution.get("dianshuZuheIdx");
-					yaPaiSolutionsForTips.put(dianshuZuheIdx, (String[]) daPaiDianShuSolution.get("dachuDianShuArray"));
-				});
+				List<Map> pukePaiList = (List) allShoupai.get("allShoupai");
+				for (Map pukePai : pukePaiList) {
+					int paiId = ((Double) pukePai.get("id")).intValue();
+					String paiMian = (String) pukePai.get("paiMian");
+					allShouPai.put(paiId, paiMian);
+				}
+				List<Map> yaPaiSolutionList = (List) shuangkouPlayer.get("yaPaiSolutionCandidates");
+				for (Map solution : yaPaiSolutionList) {
+					String dianshuZuheIdx = (String) solution.get("dianshuZuheIdx");
+					List<String> dianshuArrayList = (List) solution.get("dachuDianShuArray");
+					yaPaiSolutionCandidates.put(dianshuZuheIdx, dianshuArrayList);
+				}
+				List<Map> yaPaiSolutionsForTipsList = (List) shuangkouPlayer.get("yaPaiSolutionsForTips");
+				for (Map solution : yaPaiSolutionsForTipsList) {
+					String dianshuZuheIdx = (String) solution.get("dianshuZuheIdx");
+					List<String> dianshuArrayList = (List) solution.get("dachuDianShuArray");
+					yaPaiSolutionsForTips.put(dianshuZuheIdx, dianshuArrayList);
+				}
 			}
-		});
+		}
 		if (!actionPosition.equals(playerIdPositionMap.get(getPlayerId()))) {// 没轮到自己出牌
 			return;
 		}
-		String postion = playerIdPositionMap.get(latestDapaiPlayerId);
-		if (playerIdPositionMap.size() != 2 && postion.equals(positionPositionMap.get(actionPosition))) {// 最后出牌的是对家
-			return;
+		if (latestDapaiPlayerId != null) {
+			String postion = playerIdPositionMap.get(latestDapaiPlayerId);
+			if (playerIdPositionMap.size() != 2 && postion.equals(positionPositionMap.get(actionPosition))) {// 最后出牌的是对家
+				guo();
+			}
 		}
 		if (yaPaiSolutionCandidates == null || yaPaiSolutionCandidates.isEmpty()) {// 不能出牌
 			guo();
@@ -318,13 +335,15 @@ public class WenzhouShuangkouRobot extends Robot {
 		} else if (!yaPaiSolutionsForTips.isEmpty()) {
 			List<String> indexList = new ArrayList<>(yaPaiSolutionsForTips.keySet());
 			dianshuZuheIdx = indexList.get(0);
-			String[] dachuDianShuArray = yaPaiSolutionsForTips.get(dianshuZuheIdx);
-			for (int i = 0; i < dachuDianShuArray.length; i++) {
-				String dianshu = dachuDianShuArray[i];
+			List<String> dachuDianShuArray = yaPaiSolutionsForTips.get(dianshuZuheIdx);
+			for (int i = 0; i < dachuDianShuArray.size(); i++) {
+				String dianshu = dachuDianShuArray.get(i);
 				for (Integer paiId : allShouPai.keySet()) {
-					PukePaiMian paimian = allShouPai.get(paiId);
-					if (dianshu.equals(paimian.getDianShu()) && !paiIds.contains(paiId)) {
+					String paimian = allShouPai.get(paiId);
+					if (paimian.contains(dianshu) && !paiIds.contains(paiId)) {
 						paiIds.add(paiId);
+						allShouPai.remove(paiId);
+						break;
 					}
 				}
 			}
@@ -332,13 +351,15 @@ public class WenzhouShuangkouRobot extends Robot {
 		} else if (!yaPaiSolutionCandidates.isEmpty()) {
 			List<String> indexList = new ArrayList<>(yaPaiSolutionCandidates.keySet());
 			dianshuZuheIdx = indexList.get(0);
-			String[] dachuDianShuArray = yaPaiSolutionCandidates.get(dianshuZuheIdx);
-			for (int i = 0; i < dachuDianShuArray.length; i++) {
-				String dianshu = dachuDianShuArray[i];
+			List<String> dachuDianShuArray = yaPaiSolutionCandidates.get(dianshuZuheIdx);
+			for (int i = 0; i < dachuDianShuArray.size(); i++) {
+				String dianshu = dachuDianShuArray.get(i);
 				for (Integer paiId : allShouPai.keySet()) {
-					PukePaiMian paimian = allShouPai.get(paiId);
-					if (dianshu.equals(paimian.getDianShu()) && !paiIds.contains(paiId)) {
+					String paimian = allShouPai.get(paiId);
+					if (paimian.contains(dianshu) && !paiIds.contains(paiId)) {
 						paiIds.add(paiId);
+						allShouPai.remove(paiId);
+						break;
 					}
 				}
 			}
@@ -349,11 +370,13 @@ public class WenzhouShuangkouRobot extends Robot {
 	}
 
 	private void da(List<Integer> paiIds, String dianshuZuheIdx) throws Exception {
+		Map<String, String> headers = new HashMap<>();
+		headers.put("Content-Type", "application/json;charset=UTF-8");
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		querys.put("paiIds", gson.toJson(paiIds));
+		// querys.put("paiIds", gson.toJson(paiIds));
 		querys.put("dianshuZuheIdx", dianshuZuheIdx);
-		HttpResponse response = doPost(httpUrl + daActionUrl, querys);
+		HttpResponse response = doPost(httpUrl + daActionUrl, headers, querys, gson.toJson(paiIds));
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {
@@ -373,7 +396,7 @@ public class WenzhouShuangkouRobot extends Robot {
 	private void guo() throws Exception {
 		Map<String, String> querys = new HashMap<>();
 		querys.put("token", token);
-		HttpResponse response = doPost(httpUrl + guoActionUrl, querys);
+		HttpResponse response = doPost(httpUrl + guoActionUrl, null, querys);
 		String entity = EntityUtils.toString(response.getEntity());
 		CommonMO rmo = gson.fromJson(entity, CommonMO.class);
 		if (!rmo.isSuccess()) {

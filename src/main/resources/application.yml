@@ -3,6 +3,7 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/qipai_robot
 
+
   cloud:
     stream:
       kafka:
@@ -67,9 +68,50 @@ spring:
             concurrency: 1
             partitioned: false
           contentType: application/json
-
         ruianMajiangGame:
           destination: ruianMajiangGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        fangpaoMajiangGame:
+          destination: fangpaoMajiangGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        wenzhouMajiangGame:
+          destination: wenzhouMajiangGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        dianpaoMajiangGame:
+          destination: dianpaoMajiangGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        wenzhouShuangkouGame:
+          destination: wenzhouShuangkouGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        doudizhuGame:
+          destination: doudizhuGame
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+        paodekuaiGame:
+          destination: paodekuaiGame
           group: qipai_robot
           consumer:
             concurrency: 1

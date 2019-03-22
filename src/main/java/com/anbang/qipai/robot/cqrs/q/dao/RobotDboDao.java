@@ -9,7 +9,7 @@ import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
  * @Date: 2019/1/31 12:18 PM
  * @Version 1.0
  */
-public interface RobotMemberDboDao {
+public interface RobotDboDao {
 
 	void updateMemberPhone(String memberId, String phone);
 

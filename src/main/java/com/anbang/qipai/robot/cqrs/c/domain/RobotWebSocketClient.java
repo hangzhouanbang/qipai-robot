@@ -61,6 +61,9 @@ public class RobotWebSocketClient extends WebSocketClient {
 
 	@Override
 	public void onMessage(String message) {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		System.out.println(format.format(new Date()) + "接收message:" + message + ",playerId:" + robot.getPlayerId()
+				+ ",nickname" + robot.getNickname());
 		CommonMO mo = gson.fromJson(message, CommonMO.class);
 		String msg = mo.getMsg();
 		if (msg.equals("bindPlayer")) {
@@ -79,8 +82,8 @@ public class RobotWebSocketClient extends WebSocketClient {
 	@Override
 	public void onClose(int code, String reason, boolean remote) {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-		System.out
-				.println(format.format(new Date()) + "关闭连接" + "code:" + code + ",reason" + reason + ",remote" + remote);
+		System.out.println(format.format(new Date()) + "关闭连接" + "code:" + code + ",reason:" + reason + ",remote:"
+				+ remote + ",playerId:" + robot.getPlayerId() + ",nickname:" + robot.getNickname() + "离开游戏");
 	}
 
 	@Override
@@ -96,6 +99,8 @@ public class RobotWebSocketClient extends WebSocketClient {
 	}
 
 	public void doClose() {
+		scheduledExecutorService1.shutdown();
+		scheduledExecutorService2.shutdown();
 		this.close();
 	}
 

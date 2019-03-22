@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.anbang.qipai.robot.cqrs.c.repository.SingletonEntityFactoryImpl;
+import com.dml.users.UserSessionsManager;
 import com.highto.framework.ddd.SingletonEntityRepository;
 
 @EnableEurekaClient
@@ -15,6 +16,11 @@ import com.highto.framework.ddd.SingletonEntityRepository;
 @EnableFeignClients
 @EnableScheduling
 public class QipaiRobotApplication {
+
+	@Bean
+	public UserSessionsManager userSessionsManager() {
+		return new UserSessionsManager();
+	}
 
 	@Bean
 	public SingletonEntityRepository singletonEntityRepository() {
