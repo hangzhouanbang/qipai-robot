@@ -18,7 +18,7 @@ import com.anbang.qipai.robot.remote.service.QipaiXiuxianchangRemoteService;
  */
 
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/robot")
 public class RobotMemberController {
 
 	@Autowired

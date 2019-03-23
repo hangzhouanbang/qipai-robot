@@ -1,7 +1,9 @@
 package com.anbang.qipai.robot.plan.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.util.StringUtil;
@@ -20,14 +22,11 @@ import com.anbang.qipai.robot.plan.bean.PlayerInfo;
 import com.anbang.qipai.robot.plan.bean.RobotMemberDbo;
 import com.anbang.qipai.robot.plan.dao.PlayerInfoDao;
 import com.anbang.qipai.robot.plan.dao.RobotMemberDboDao;
-import com.anbang.qipai.robot.remote.service.QipaiMembersRemoteService;
+import com.anbang.qipai.robot.utils.HttpUtil;
 import com.highto.framework.ddd.SingletonEntityRepository;
 
 @Service
 public class RobotService {
-
-	@Autowired
-	private QipaiMembersRemoteService qipaiMembersRemoteService;
 
 	@Autowired
 	private RobotDboDao robotDboDao;
@@ -44,17 +43,17 @@ public class RobotService {
 	@Autowired
 	private SingletonEntityRepository singletonEntityRepository;
 
-	public void init() {
+	public void init() throws Exception {
 		List<RobotMemberDbo> robotMemberDboList = robotMemberDboDao.findAll();
-		RobotDbo robot = new RobotDbo();
-		// robot.setNickname(nickname);
-		// robot.setHeadimgurl(headimgurl);
-		// robot.setGender(gender);
-		robotDboDao.insert(robot);
-		AuthorizationDbo unionAuthDbo = new AuthorizationDbo();
-		authorizationDboDao.save(unionAuthDbo);
-		AuthorizationDbo openAuthDbo = new AuthorizationDbo();
-		authorizationDboDao.save(openAuthDbo);
+		for (RobotMemberDbo robot : robotMemberDboList) {
+			Map<String, String> query = new HashMap<>();
+			query.put("unionid", UUID.randomUUID().toString().replaceAll("-", ""));
+			query.put("openid", UUID.randomUUID().toString().replaceAll("-", ""));
+			query.put("nickname", robot.getNickname());
+			query.put("headimgurl", robot.getHeadimgurl());
+			query.put("sex", robot.getGender());
+			HttpUtil.doPost("http://3cs.3cscy.com:82", "/robot/wechatidlogin", "POST", null, query, "");
+		}
 	}
 
 	/**

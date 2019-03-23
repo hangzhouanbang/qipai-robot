@@ -19,6 +19,19 @@ public class TuoguanController {
 	@Autowired
 	private RobotService robotService;
 
+	@RequestMapping("/register")
+	public CommonVO registerRobot() {
+		CommonVO vo = new CommonVO();
+		try {
+			robotService.init();
+		} catch (Exception e) {
+			vo.setSuccess(false);
+			vo.setMsg(e.getClass().getName());
+			return vo;
+		}
+		return vo;
+	}
+
 	@RequestMapping("/tuoguan")
 	public CommonVO tuoguan(Game game, String gameId, String token) {
 		CommonVO vo = new CommonVO();
