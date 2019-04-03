@@ -37,6 +37,8 @@ public class RobotDistributeService {
 			gameInfoUrl = UrlConfig.getInfoFPMJUrl();
 		} else if (gameType.equals("wenzhouMajiang")) {
 			gameInfoUrl = UrlConfig.getInfoWZMJUrl();
+		} else if(gameType.equals("doudizhu")){
+			gameInfoUrl = UrlConfig.getInfoDDZUrl();
 		} else {
 			return;
 		}

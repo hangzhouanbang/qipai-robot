@@ -1,15 +1,7 @@
 spring:
   data:
     mongodb:
-#      uri: mongodb://localhost:27017/qipai_xiuxianchang
-      database: qipai_robot
-      host: 172.16.21.50
-      port: 27017
-      username: root
-      password: '''~kkO837/FZ.'
-      authentication-database: admin
-      repositories:
-        enabled: true
+      uri: mongodb://localhost:27017/qipai_robot
 
 
   cloud:
@@ -64,8 +56,16 @@ spring:
             partitioned: false
           contentType: application/json
 
-        ruianMajiangGame:
-          destination: ruianMajiangGame
+        doudiGameRoom:
+          destination: doudiGameRoom
+          group: qipai_robot
+          consumer:
+            concurrency: 1
+            partitioned: false
+          contentType: application/json
+
+        doudizhuGameRoom:
+          destination: doudizhuGameRoom
           group: qipai_robot
           consumer:
             concurrency: 1

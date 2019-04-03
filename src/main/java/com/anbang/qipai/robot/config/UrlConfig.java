@@ -40,6 +40,7 @@ public class UrlConfig {
     private static String infoFPMJUrl;
     private static String infoWZMJUrl;
     private static String infoWZSKUrl;
+    private static String infoDDZUrl;
 
     private static String joinXiuXianChang;
     private static String giveGoldUrl;
@@ -122,6 +123,10 @@ public class UrlConfig {
         return infoWZSKUrl;
     }
 
+    public static String getInfoDDZUrl() {
+        return infoDDZUrl;
+    }
+
     public static String getShuangkouReadyNext() {
         return shuangkouReadyNext;
     }
@@ -188,6 +193,7 @@ public class UrlConfig {
         infoWZMJUrl = bundle.getString("games.xiuxian.infoWZMJRoom");
         infoRAMJUrl = bundle.getString("games.xiuxian.infoRAMJRoom");
         infoWZSKUrl = bundle.getString("games.xiuxian.infoWZSKRoom");
+        infoDDZUrl = bundle.getString("games.xiuxian.infoDDZRoom");
 
         joinXiuXianChang = bundle.getString("xiuxianchang.game.joinroom");
         giveGoldUrl = bundle.getString("xiuxianchang.member.givegold");

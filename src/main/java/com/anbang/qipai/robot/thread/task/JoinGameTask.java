@@ -8,6 +8,7 @@ import com.anbang.qipai.robot.exceptions.AnBangException;
 import com.anbang.qipai.robot.model.Robots;
 import com.anbang.qipai.robot.thread.ConditionPool;
 import com.anbang.qipai.robot.utils.HttpUtils;
+import com.anbang.qipai.robot.websocket.DoudizhuRobotClient;
 import com.anbang.qipai.robot.websocket.MajiangRobotClient;
 import com.anbang.qipai.robot.websocket.RobotClient;
 import org.eclipse.jetty.util.BlockingArrayQueue;
@@ -165,6 +166,9 @@ public class JoinGameTask implements Runnable {
 
             if (gameType.equals("wenzhouShuangkou")) {
                 RobotClient client = new RobotClient(wsUrl, nickname, gameToken, gameId, robotId, memberId);
+                client.connect();
+            } else if(gameType.equals("doudizhu")){
+                DoudizhuRobotClient client = new DoudizhuRobotClient(wsUrl, nickname, gameToken, gameId, robotId, memberId);
                 client.connect();
             } else {
                 MajiangRobotClient client = new MajiangRobotClient(wsUrl, nickname, gameToken, gameId, robotId, memberId, gameType);

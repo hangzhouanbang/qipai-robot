@@ -46,6 +46,13 @@
 
     <dependencies>
 
+        <!-- 斗地主 -->
+        <dependency>
+            <groupId>doudizhu.dml</groupId>
+            <artifactId>doudizhu.dml</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
