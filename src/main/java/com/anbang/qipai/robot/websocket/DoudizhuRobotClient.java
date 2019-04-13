@@ -1,6 +1,7 @@
 package com.anbang.qipai.robot.websocket;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.anbang.qipai.robot.config.PukeUrlConfig;
 import com.anbang.qipai.robot.exceptions.AnBangException;
@@ -9,10 +10,15 @@ import com.anbang.qipai.robot.utils.HttpUtils;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.DoudizhuPlayerShoupaiVO;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.DoudizhuPlayerValueObjectVO;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.PanValueObjectVO;
+import com.dml.doudizhu.pai.dianshuzu.ChibangDianShuZu;
 import com.dml.doudizhu.player.action.da.solution.DaPaiDianShuSolution;
+import com.dml.doudizhu.preparedapai.lipai.DianshuOrPaishuShoupaiSortStrategy;
 import com.dml.puke.pai.DianShu;
 import com.dml.puke.pai.PukePai;
 import com.dml.puke.pai.PukePaiMian;
+import com.dml.puke.wanfa.dianshu.dianshuzu.DanzhangDianShuZu;
+import com.dml.puke.wanfa.dianshu.dianshuzu.DianShuZu;
+import com.dml.puke.wanfa.dianshu.dianshuzu.ZhadanDianShuZu;
 import com.dml.puke.wanfa.dianshu.paizu.DianShuZuPaiZu;
 import com.dml.puke.wanfa.position.Position;
 import com.google.gson.Gson;
@@ -25,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 斗地主client
@@ -33,12 +40,15 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
 
     private Position position;
 
+    private boolean qiang;
+
     Gson gson = new Gson();
     Random random = new Random();
 
     public DoudizhuRobotClient(String url, String robotName, String gameToken, String gameId, String robotId, String memberId) throws URISyntaxException {
         super(url, robotName, gameToken, gameId, robotId, memberId);
         super.configMap = PukeUrlConfig.getDoudizhu();
+        qiang = random.nextBoolean();
     }
 
     @Override
@@ -121,9 +131,6 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
             // logger.info("机器人" + name + "请求panforme的参数" + gameMap.toString());
             String doPost = HttpUtils.doPost(configMap.get("panforme"), gameMap);
 
-            System.out.println("jsonjjjjjjjjjjjjjjjjjjj" );
-            System.out.println(doPost);
-
             JSONObject postResult = JSON.parseObject(doPost);
 
             if (postResult.getString("success").equals("false")) {
@@ -144,10 +151,22 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                 if (memberId.equals(playerId) && list.getState() != null) {
                     String state = list.getState().name();
                     if ("startQiangdizhu".equals(state) || "startJiaodizhu".equals(state)) {
-                        Map map = new HashMap();
+
+                        synchronized (this) {
+                            wait(3000);
+                        }
+
+                        Map<String, String> map = new HashMap();
                         map.put("token", gameToken);
-                        map.put("qiang", random.nextBoolean());
-                        HttpUtils.doPost(configMap.get("qiangdizhu"), gameMap);
+                        map.put("qiang", String.valueOf(qiang));
+                        String resultStr =  HttpUtils.doPost(configMap.get("qiangdizhu"), map);
+                        String data = JSON.parseObject(resultStr).getJSONObject("data").getString("queryScopes");
+                        if (StringUtils.isNotBlank(data)) {
+                            List<String> scopeList = JSON.parseArray(data, String.class);
+                            if (!CollectionUtils.isEmpty(scopeList) && scopeList.contains("panForMe")) {
+                                panForMe();
+                            }
+                        }
                         return;
                     }
                 }
@@ -192,30 +211,93 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                     return;
                 }
 
+                // -------------------斗地主机器人打牌
                 DoudizhuPlayerShoupaiVO allShoupai = doudizhuPlayer.getAllShoupai();
                 PlayTypeEnum playType = getPlayType(lastPaiZu, latestDapaiPlayerId, dizhuPlayerId, memberId);
-                if (playType.equals(PlayTypeEnum.oneself)) {
-                    System.out.println("机器人先打牌:-----" + JSON.toJSONString(yaPaiSolutionCandidates));
-                    DaPaiDianShuSolution solutionsForTips = yaPaiSolutionCandidates.get(0);
-                    List<Integer> paiIds = getPaiIds(allShoupai.getAllShoupai(), solutionsForTips.getDachuDianShuArray());
-                    da(paiIds, solutionsForTips.getDianshuZuheIdx());
-                }
-                if (playType.equals(PlayTypeEnum.partner)) {
-                    DaPaiDianShuSolution solutionsForTips = yaPaiSolutionCandidates.get(0);
-                    List<Integer> paiIds = getPaiIds(allShoupai.getAllShoupai(), solutionsForTips.getDachuDianShuArray());
-                    da(paiIds, solutionsForTips.getDianshuZuheIdx());
-                }
-                if (playType.equals(PlayTypeEnum.opponent)) {
-                    DaPaiDianShuSolution solutionsForTips = yaPaiSolutionCandidates.get(0);
-                    List<Integer> paiIds = getPaiIds(allShoupai.getAllShoupai(), solutionsForTips.getDachuDianShuArray());
-                    da(paiIds, solutionsForTips.getDianshuZuheIdx());
-                }
-            }
+                DaPaiDianShuSolution daPaiSolution = null;
 
+                if (playType.equals(PlayTypeEnum.oneself)) {
+                    // 分出炸弹牌
+                    Map<Boolean, List<DaPaiDianShuSolution>> map = yaPaiSolutionCandidates.stream().collect(Collectors.
+                            partitioningBy(p -> p.getDianShuZu() instanceof ZhadanDianShuZu));
+                    List<DaPaiDianShuSolution> zhadanSolution = map.get(true);
+                    List<DaPaiDianShuSolution> noZhadanSolution = map.get(false);
+
+                    // 有不含炸弹的方案取不含炸弹的牌
+                    if (!CollectionUtils.isEmpty(noZhadanSolution)) {
+
+                        List<DaPaiDianShuSolution> filterList = new ArrayList<>();
+
+                        for (DaPaiDianShuSolution solution : noZhadanSolution) {
+                            // 可以出完直接出完
+                            if (solution.getDachuDianShuArray().length == allShoupai.getTotalShoupai()) {
+                                daPaiSolution = solution;
+                                break;
+                            }
+
+                            // 不出带王的翅膀牌组
+                            if (solution.getDianShuZu() instanceof ChibangDianShuZu) {
+                                ChibangDianShuZu chibangDianShuZu = (ChibangDianShuZu) solution.getDianShuZu();
+                                if (chibangDianShuZu.getChibang().equals(DianShu.dawang) || chibangDianShuZu.getChibang().equals(DianShu.xiaowang)){
+                                    continue;
+                                }
+                            }
+
+                            // 先出复杂牌组
+                            if (solution.getDianShuZu() instanceof DanzhangDianShuZu) {
+                                continue;
+                            }
+                            filterList.add(solution);
+                        }
+
+                        // 不可以直接出完时，从filter中取
+                        if (daPaiSolution == null) {
+                            if (filterList.size() != 0) {
+                                int rand = random.nextInt(noZhadanSolution.size());
+                                daPaiSolution = noZhadanSolution.get(rand);
+                            } else {
+                                daPaiSolution = noZhadanSolution.get(0);
+                            }
+                        }
+                    } else {
+                        daPaiSolution = yaPaiSolutionCandidates.get(0);
+                    }
+                }
+
+                // 不炸
+                if (playType.equals(PlayTypeEnum.partner)) {
+                    for (DaPaiDianShuSolution solution : yaPaiSolutionCandidates) {
+                        if (solution.getDianShuZu() instanceof ZhadanDianShuZu) {
+                            continue;
+                        }
+                        daPaiSolution = solution;
+                        break;
+                    }
+                    if (daPaiSolution == null) {
+                        guo();
+                    }
+                }
+
+                if (playType.equals(PlayTypeEnum.opponent)) {
+                    if (!CollectionUtils.isEmpty(yaPaiSolutionsForTips)) {
+                        daPaiSolution = yaPaiSolutionsForTips.get(0);
+                    } else {
+                        daPaiSolution = yaPaiSolutionCandidates.get(0);
+                    }
+                }
+
+                // 打牌
+                List<Integer> paiIds = getPaiIds(allShoupai.getAllShoupai(), daPaiSolution.getDachuDianShuArray());
+                da(paiIds, daPaiSolution.getDianshuZuheIdx());
+            }
         } catch (IOException e) {
             huishou();
             e.printStackTrace();
             throw new AnBangException("获取盘局信息时异常");
+        } catch (InterruptedException e) {
+            huishou();
+            e.printStackTrace();
+            throw new AnBangException(name + "？ 抢地主导致的异常");
         }
     }
 
@@ -243,18 +325,11 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
             HttpResponse post = HttpUtil.doPost(configMap.get("da"), "/pk/da", "POST", headers, querys, json);
             lastChuPaiTime = System.currentTimeMillis();
 
-            Map map = gson.fromJson(EntityUtils.toString(post.getEntity()), Map.class);
-
-            // TODO: 2019/4/3
-            System.out.println(memberId + "机器人打牌:" + JSON.toJSONString(paiIds));
-            System.out.println(JSON.toJSONString(post));
-            System.out.println(JSON.toJSONString(map));
-
             // 游戏结束，回收机器人
+            Map map = gson.fromJson(EntityUtils.toString(post.getEntity()), Map.class);
             if (map.toString().contains("panResult")) {
                 huishou();
             }
-
         } catch (Exception e) {
             huishou();
             e.printStackTrace();
