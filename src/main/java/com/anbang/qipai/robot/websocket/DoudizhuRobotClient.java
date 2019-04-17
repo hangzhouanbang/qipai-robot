@@ -7,6 +7,7 @@ import com.anbang.qipai.robot.config.PukeUrlConfig;
 import com.anbang.qipai.robot.exceptions.AnBangException;
 import com.anbang.qipai.robot.utils.HttpUtil;
 import com.anbang.qipai.robot.utils.HttpUtils;
+import com.anbang.qipai.robot.utils.PaizuUtil;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.DoudizhuPlayerShoupaiVO;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.DoudizhuPlayerValueObjectVO;
 import com.anbang.qipai.robot.websocket.vo.doudizhu.PanValueObjectVO;
@@ -219,7 +220,7 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                 if (playType.equals(PlayTypeEnum.oneself)) {
                     // 分出炸弹牌
                     Map<Boolean, List<DaPaiDianShuSolution>> map = yaPaiSolutionCandidates.stream().collect(Collectors.
-                            partitioningBy(p -> p.getDianShuZu() instanceof ZhadanDianShuZu));
+                            partitioningBy(p -> PaizuUtil.isBoom(p)));
                     List<DaPaiDianShuSolution> zhadanSolution = map.get(true);
                     List<DaPaiDianShuSolution> noZhadanSolution = map.get(false);
 
@@ -229,6 +230,8 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                         List<DaPaiDianShuSolution> filterList = new ArrayList<>();
 
                         for (DaPaiDianShuSolution solution : noZhadanSolution) {
+                            List<DianShu> dianShus = Arrays.asList(solution.getDachuDianShuArray());
+
                             // 可以出完直接出完
                             if (solution.getDachuDianShuArray().length == allShoupai.getTotalShoupai()) {
                                 daPaiSolution = solution;
@@ -236,15 +239,18 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                             }
 
                             // 不出带王的翅膀牌组
-                            if (solution.getDianShuZu() instanceof ChibangDianShuZu) {
-                                ChibangDianShuZu chibangDianShuZu = (ChibangDianShuZu) solution.getDianShuZu();
-                                if (chibangDianShuZu.getChibang().equals(DianShu.dawang) || chibangDianShuZu.getChibang().equals(DianShu.xiaowang)){
+                            if (dianShus.size() > 4) {
+                                if (dianShus.contains(DianShu.dawang) || dianShus.contains(DianShu.xiaowang)){
+                                    continue;
+                                }
+
+                                if (PaizuUtil.containBoom(solution)) {
                                     continue;
                                 }
                             }
 
                             // 先出复杂牌组
-                            if (solution.getDianShuZu() instanceof DanzhangDianShuZu) {
+                            if (dianShus.size() == 1 || dianShus.size() == 3) {
                                 continue;
                             }
                             filterList.add(solution);
@@ -267,7 +273,7 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                 // 不炸
                 if (playType.equals(PlayTypeEnum.partner)) {
                     for (DaPaiDianShuSolution solution : yaPaiSolutionCandidates) {
-                        if (solution.getDianShuZu() instanceof ZhadanDianShuZu) {
+                        if (PaizuUtil.isBoomOrWang(solution)) {
                             continue;
                         }
                         daPaiSolution = solution;
@@ -284,6 +290,11 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
                     } else {
                         daPaiSolution = yaPaiSolutionCandidates.get(0);
                     }
+                }
+
+                if (daPaiSolution == null) {
+                    guo();
+                    return;
                 }
 
                 // 打牌
