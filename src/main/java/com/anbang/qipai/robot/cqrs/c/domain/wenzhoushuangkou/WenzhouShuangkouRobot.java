@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.util.EntityUtils;
@@ -19,8 +20,11 @@ import com.anbang.qipai.robot.cqrs.c.domain.game.Game;
 import com.anbang.qipai.robot.cqrs.c.domain.game.GameFinishVoteMO;
 import com.anbang.qipai.robot.cqrs.c.domain.puke.DaPaiDianShuSolution;
 import com.anbang.qipai.robot.cqrs.q.dbo.RobotDbo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WenzhouShuangkouRobot extends Robot {
+	Logger logger = LoggerFactory.getLogger(WenzhouShuangkouRobot.class);
 
 	private final String readyUrl = "/game/ready";
 
@@ -264,6 +268,7 @@ public class WenzhouShuangkouRobot extends Robot {
 
 	private void doAction(CommonMO mo) throws Exception {
 		Map data = (Map) mo.getData();
+		logger.info("测试日志测试日志"+JSON.toJSONString(mo.getData()));
 		Map panActionFrame = (Map) data.get("panActionFrame");
 		Map panAfterAction = (Map) panActionFrame.get("panAfterAction");
 		String actionPosition = (String) panAfterAction.get("actionPosition");
