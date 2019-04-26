@@ -268,7 +268,6 @@ public class WenzhouShuangkouRobot extends Robot {
 
 	private void doAction(CommonMO mo) throws Exception {
 		Map data = (Map) mo.getData();
-		logger.info("测试日志测试日志"+JSON.toJSONString(mo.getData()));
 		Map panActionFrame = (Map) data.get("panActionFrame");
 		Map panAfterAction = (Map) panActionFrame.get("panAfterAction");
 		String actionPosition = (String) panAfterAction.get("actionPosition");
