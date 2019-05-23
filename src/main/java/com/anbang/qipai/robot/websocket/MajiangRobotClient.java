@@ -58,6 +58,8 @@ public class MajiangRobotClient extends WebSocketClient {
 
 	private Map<String, String> gameMap;
 
+	ScheduledExecutorService scheduledExecutorService;
+
 	public MajiangRobotClient(String url, String robotName, String gameToken, String gameId, String robotId,
 			String memberId, String gameType) throws URISyntaxException {
 		super(new URI(url));
@@ -363,6 +365,9 @@ public class MajiangRobotClient extends WebSocketClient {
 			if (JSON.parseObject(action).getJSONObject("data").getJSONArray("queryScopes").contains("panResult")) {
 				readyToNextGame();
 			}
+			if (JSON.parseObject(action).getJSONObject("data").getJSONArray("queryScopes").contains("juResult")) {
+				huishou();
+			}
 		} catch (Exception e) {
 			huishou();
 			throw new AnBangException(name + "请求action异常");
@@ -378,7 +383,7 @@ public class MajiangRobotClient extends WebSocketClient {
 		//
 		// Date time = c.getTime(); // 得到执行任务的时间,此处为当天的10：00：00
 
-		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		scheduledExecutorService.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -520,6 +525,7 @@ public class MajiangRobotClient extends WebSocketClient {
 		}
 		AllGameMap.deleteGame(gameId);
 		close();// client关闭 最后关闭client
+		scheduledExecutorService.shutdownNow();
 	}
 
 }

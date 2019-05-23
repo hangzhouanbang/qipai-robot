@@ -36,6 +36,7 @@ public abstract class AbstractRobotClient  extends WebSocketClient {
     boolean terminate = false;
 
     Logger logger = LoggerFactory.getLogger(MajiangRobotClient.class);
+    ScheduledExecutorService scheduledExecutorService;
 
     public AbstractRobotClient(String url, String robotName, String gameToken, String gameId, String robotId, String memberId)
             throws URISyntaxException {
@@ -64,7 +65,7 @@ public abstract class AbstractRobotClient  extends WebSocketClient {
         //
         // Date time = c.getTime(); // 得到执行任务的时间,此处为当天的10：00：00
 
-        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -129,6 +130,7 @@ public abstract class AbstractRobotClient  extends WebSocketClient {
             }
         }
         close();
+        scheduledExecutorService.shutdownNow();
     }
 
     void bindPlayer() {

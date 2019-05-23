@@ -338,7 +338,7 @@ public class DoudizhuRobotClient extends AbstractRobotClient {
 
             // 游戏结束，回收机器人
             Map map = gson.fromJson(EntityUtils.toString(post.getEntity()), Map.class);
-            if (map.toString().contains("panResult")) {
+            if (map.toString().contains("panResult") || map.toString().contains("juResult")) {
                 huishou();
             }
         } catch (Exception e) {

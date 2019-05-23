@@ -68,6 +68,8 @@ public class RobotClient extends WebSocketClient {
 
 	private Map<String, String> gameMap;
 
+	ScheduledExecutorService scheduledExecutorService;
+
 	public RobotClient(String url, String robotName, String gameToken, String gameId, String robotId, String memberId)
 			throws URISyntaxException {
 		super(new URI(url));
@@ -404,10 +406,14 @@ public class RobotClient extends WebSocketClient {
 
 			Map map = gson.fromJson(EntityUtils.toString(post.getEntity()), Map.class);
 
-			if (map.toString().contains("panResult")) {
-				// 准备下一盘
-				readyToNextShuangKou(gameToken);
+			if (map.toString().contains("juResult")) {
+				huishou();
 			}
+
+//			if (map.toString().contains("panResult")) {
+//				// 准备下一盘
+//				readyToNextShuangKou(gameToken);
+//			}
 
 		} catch (Exception e) {
 			huishou();
@@ -458,6 +464,7 @@ public class RobotClient extends WebSocketClient {
 			}
 		}
 		close();
+		scheduledExecutorService.shutdownNow();
 	}
 
 	private boolean queryVote() {
@@ -559,7 +566,7 @@ public class RobotClient extends WebSocketClient {
 		//
 		// Date time = c.getTime(); // 得到执行任务的时间,此处为当天的10：00：00
 
-		ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		scheduledExecutorService.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -568,7 +575,6 @@ public class RobotClient extends WebSocketClient {
 				} else {
 					logger.info("机器人" + name + "心跳结束");
 					System.gc();
-					Thread.currentThread().stop();
 				}
 			}
 
